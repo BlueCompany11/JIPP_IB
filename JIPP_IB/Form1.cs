@@ -21,9 +21,12 @@ namespace JIPP_IB
             InitializeComponent();
             //zaczynamy od kolka
             currentMove = State.Circle;
-            //reakcja na wygrana bedzie pojawienie sie tego okienka z napisem
+            //reakcja na zakonczenie gry sa te 3 metody ponizej
+            //wyrazenie lambda (zeby po prostu uzyc) ktore wyswietli okienko kto wygral
             OnIsGameOver = (() => { MessageBox.Show(currentMove.ToString() + " win"); });
+            //czyszczenie grafiki
             OnIsGameOver += Form1_OnIsGameOver;
+            //czyszczenie modelu logicznego
             OnIsGameOver += ClearData;
         }
 
