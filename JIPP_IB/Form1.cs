@@ -14,11 +14,39 @@ namespace JIPP_IB
     {
         delegate void IsGameOver();
         event IsGameOver OnIsGameOver;
+        //pierwszy element to kolumna, drugi rzad
+        State[,] data = new State[3, 3];
         public Form1()
         {
             InitializeComponent();
+            //zaczynamy od kolka
             currentMove = State.Circle;
-            OnIsGameOver = (() => { MessageBox.Show(currentMove.ToString() + " won"); });
+            //reakcja na wygrana bedzie pojawienie sie tego okienka z napisem
+            OnIsGameOver = (() => { MessageBox.Show(currentMove.ToString() + " win"); });
+            OnIsGameOver += Form1_OnIsGameOver;
+            OnIsGameOver += ClearData;
+        }
+
+        private void Form1_OnIsGameOver()
+        {
+            ClearFields(pictureBox1);
+            ClearFields(pictureBox2);
+            ClearFields(pictureBox3);
+            ClearFields(pictureBox4);
+            ClearFields(pictureBox5);
+            ClearFields(pictureBox6);
+            ClearFields(pictureBox7);
+            ClearFields(pictureBox8);
+            ClearFields(pictureBox9);
+        }
+        void ClearData()
+        {
+            data = new State[3, 3];
+        }
+        private void ClearFields(PictureBox pictureBox)
+        {
+            Graphics g = pictureBox.CreateGraphics();
+            g.Clear(pictureBox.BackColor);
         }
         State currentMove;
         enum State
@@ -27,7 +55,8 @@ namespace JIPP_IB
             Circle,
             Cross
         }
-
+        
+        //metoda sprawdzajaca czy gra jest juz zakonczona
         bool CheckIfGameFinished()
         {
             State currentCheckVal = currentMove;
@@ -77,17 +106,22 @@ namespace JIPP_IB
             bool diagonal2 = true;
             for (int i = 0; i < 3; i++)
             {
-                if (data[2-i,2-i] != currentMove)
+                if (data[2-i,i] != currentMove)
                 {
                     diagonal2 = false;
                     break;
                 }
             }
-            return diagonal2;
+            if (diagonal2 == true)
+                return true;
+            if (!data.Cast<State>().Any(o => o == State.None))
+            {
+                currentMove = State.None;
+                return true;
+            }
+            return false;
         }
-
-        //pierwszy element to kolumna, drugi rzad
-        State[,] data = new State[3, 3];
+        
         void DrawElement(PictureBox pictureBox, int posX, int posY)
         {
             if(currentMove == State.Circle)
@@ -97,6 +131,11 @@ namespace JIPP_IB
             else if(currentMove == State.Cross)
             {
                 DrawCross(pictureBox);
+            }
+            else// tu wejdziemy gdy gra zakonczyla sie remisem -zalozylem, ze zaczniemy od okregow
+            {
+                currentMove = State.Circle;
+                DrawCircle(pictureBox);
             }
             data[posX, posY] = currentMove;
             if (CheckIfGameFinished())
